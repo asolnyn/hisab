@@ -1,9 +1,9 @@
 {
   "stores": [
     {
-      "id": "mannan-store",
-      "name": "Mannan Store",
-      "sheetId": "PASTE_SHEET_ID_HERE",
+      "id": "siam-pay",
+      "name": "siam-pay",
+      "sheetId": "1Lr_DLK25trSxqUwVdCEdStavha5UNfB6EhOciLCIdmU",
       "tab": "Sheet1"
     }
   ]
