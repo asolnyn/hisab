@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+Bengali:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500&display=swap');
+
+:root{
+  --bg: #171b16;
+  --paper: #1f241d;
+  --paper-line: #3c3222;
+  --brass: #c9a24a;
+  --brass-dim: #7a6636;
+  --credit: #6f9ce8;
+  --debit: #d0708a;
+  --ink: #e9e6da;
+  --ink-dim: #9aa093;
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin:0;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at top, rgba(201,162,74,0.06), transparent 60%);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  min-height:100vh;
+  padding-bottom: 3rem;
+}
+
+.rule{
+  height:1px;
+  background: linear-gradient(90deg, transparent, var(--paper-line), transparent);
+  margin: 0;
+}
+
+header.top{
+  padding: 2.2rem 1.4rem 1.4rem;
+  text-align:center;
+  border-bottom: 1px solid var(--paper-line);
+}
+
+.eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 0.5rem;
+}
+
+h1{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size: 1.9rem;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.bn{
+  font-family:'Noto Sans Bengali', sans-serif;
+}
+
+main{
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.2rem 1rem;
+}
+
+/* index: store cards */
+.store-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.8rem;
+  margin-top:1.2rem;
+}
+
+.store-card{
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  background: var(--paper);
+  border:1px solid var(--paper-line);
+  border-radius:2px;
+  padding:1rem 1.1rem;
+  position:relative;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.store-card:hover, .store-card:focus-visible{
+  border-color: var(--brass-dim);
+  transform: translateX(2px);
+}
+.store-card::before{
+  content:"";
+  position:absolute;
+  left:0; top:0.6rem; bottom:0.6rem;
+  width:3px;
+  background: var(--brass-dim);
+}
+.store-card .name{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size:1.15rem;
+}
+.store-card .meta{
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.78rem;
+  color: var(--ink-dim);
+  margin-top:0.3rem;
+}
+.store-card .bal{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:600;
+  font-size:1.05rem;
+  margin-top:0.5rem;
+}
+.bal.credit{ color: var(--credit); }
+.bal.debit{ color: var(--debit); }
+
+/* store page: passbook */
+.back-link{
+  display:inline-block;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.78rem;
+  color: var(--ink-dim);
+  text-decoration:none;
+  margin-bottom:1rem;
+  letter-spacing:0.04em;
+}
+.back-link:hover{ color: var(--brass); }
+
+.stamp{
+  width:132px; height:132px;
+  border:2px solid var(--brass-dim);
+  border-radius:50%;
+  margin: 0.6rem auto 1.6rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transform: rotate(-4deg);
+  position:relative;
+}
+.stamp::after{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border:1px dashed var(--brass-dim);
+  border-radius:50%;
+  opacity:0.6;
+}
+.stamp .label{
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.6rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color: var(--brass);
+}
+.stamp .amount{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size:1.5rem;
+  margin-top:0.15rem;
+}
+
+table.ledger{
+  width:100%;
+  border-collapse: collapse;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.85rem;
+}
+table.ledger thead th{
+  text-align:left;
+  font-family:'Inter', sans-serif;
+  font-weight:500;
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color: var(--brass);
+  border-bottom:1px solid var(--brass-dim);
+  padding: 0 0.5rem 0.5rem 0;
+}
+table.ledger td{
+  padding: 0.6rem 0.5rem 0.6rem 0;
+  border-bottom:1px solid var(--paper-line);
+  vertical-align: top;
+}
+table.ledger tr:last-child td{ border-bottom:none; }
+.amt{ font-variant-numeric: tabular-nums; white-space:nowrap; }
+.amt.credit{ color: var(--credit); }
+.amt.debit{ color: var(--debit); }
+.date-cell{ color: var(--ink-dim); white-space:nowrap; }
+.note-cell{ color: var(--ink); font-family:'Inter',sans-serif; font-size:0.82rem; }
+.running{ color: var(--ink-dim); text-align:right; white-space:nowrap; }
+
+.status-msg{
+  text-align:center;
+  color: var(--ink-dim);
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.82rem;
+  padding: 2rem 1rem;
+}
+.status-msg.error{ color: var(--debit); }

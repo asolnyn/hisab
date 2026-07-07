@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hisab Khata</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="eyebrow">Asol Publication · Ledger</div>
+    <h1><span class="bn">হিসাব</span> Khata</h1>
+  </header>
+
+  <main>
+    <div id="list" class="store-list">
+      <div class="status-msg">Loading stores…</div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    async function loadIndex() {
+      const listEl = document.getElementById('list');
+      let config;
+      try {
+        config = await (await fetch('config.json')).json();
+      } catch (e) {
+        listEl.innerHTML = '<div class="status-msg error">Could not load config.json</div>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      for (const store of config.stores) {
+        const card = document.createElement('a');
+        card.className = 'store-card';
+        card.href = `store.html?id=${encodeURIComponent(store.id)}`;
+        card.innerHTML = `
+          <div class="name">${store.name}</div>
+          <div class="meta">tab: ${store.tab}</div>
+          <div class="bal" data-id="${store.id}">loading…</div>
+        `;
+        listEl.appendChild(card);
+
+        // fetch balance async, fill in when ready
+        fetchSheet(store.sheetId, store.tab)
+          .then(parseTransactions)
+          .then(txns => {
+            const total = txns.reduce((s, t) => s + t.amount, 0);
+            const balEl = card.querySelector('.bal');
+            balEl.textContent = formatMoney(total);
+            balEl.classList.add(total < 0 ? 'debit' : 'credit');
+          })
+          .catch(() => {
+            card.querySelector('.bal').textContent = '—';
+          });
+      }
+    }
+    loadIndex();
+  </script>
+</body>
+</html>

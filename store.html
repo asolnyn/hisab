@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hisab Khata</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="eyebrow">Asol Publication · Ledger</div>
+    <h1 id="store-name">…</h1>
+  </header>
+
+  <main>
+    <a class="back-link" href="index.html">← all stores</a>
+
+    <div class="stamp">
+      <div class="label">Balance</div>
+      <div class="amount" id="stamp-amount">…</div>
+    </div>
+
+    <div id="content">
+      <div class="status-msg">Loading ledger…</div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    async function loadStore() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const contentEl = document.getElementById('content');
+      const nameEl = document.getElementById('store-name');
+      const stampEl = document.getElementById('stamp-amount');
+
+      let config;
+      try {
+        config = await (await fetch('config.json')).json();
+      } catch (e) {
+        contentEl.innerHTML = '<div class="status-msg error">Could not load config.json</div>';
+        return;
+      }
+
+      const store = config.stores.find(s => s.id === id);
+      if (!store) {
+        contentEl.innerHTML = '<div class="status-msg error">Store not found in config.json</div>';
+        return;
+      }
+      nameEl.textContent = store.name;
+      document.title = store.name + ' · Hisab Khata';
+
+      try {
+        const rows = await fetchSheet(store.sheetId, store.tab);
+        const txns = parseTransactions(rows);
+
+        let running = 0;
+        const withRunning = txns.map(t => {
+          running += t.amount;
+          return { ...t, running };
+        });
+
+        stampEl.textContent = formatMoney(running);
+        stampEl.classList.add(running < 0 ? 'debit' : 'credit');
+
+        if (withRunning.length === 0) {
+          contentEl.innerHTML = '<div class="status-msg">No transactions yet.</div>';
+          return;
+        }
+
+        const rowsHtml = withRunning.slice().reverse().map(t => `
+          <tr>
+            <td class="amt ${t.amount < 0 ? 'debit' : 'credit'}">${formatMoney(t.amount)}</td>
+            <td class="date-cell">${t.date}</td>
+            <td class="note-cell">${t.note}</td>
+            <td class="running">${formatMoney(t.running)}</td>
+          </tr>
+        `).join('');
+
+        contentEl.innerHTML = `
+          <table class="ledger">
+            <thead>
+              <tr><th>Amount</th><th>Date</th><th>Note</th><th>Balance</th></tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        `;
+      } catch (e) {
+        contentEl.innerHTML = `<div class="status-msg error">${e.message}</div>`;
+      }
+    }
+    loadStore();
+  </script>
+</body>
+</html>

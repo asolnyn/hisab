@@ -1,0 +1,10 @@
+{
+  "stores": [
+    {
+      "id": "mannan-store",
+      "name": "Mannan Store",
+      "sheetId": "PASTE_SHEET_ID_HERE",
+      "tab": "Sheet1"
+    }
+  ]
+}
