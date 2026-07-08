@@ -29,12 +29,14 @@ function parseTransactions(rows) {
   const txns = [];
   for (const r of dataRows) {
     const amount = parseFloat(r[0]);
+    const date = r[1] ? String(r[1]).trim() : '';
+    const note = r[2] ? String(r[2]).trim() : '';
+
     if (isNaN(amount)) continue;
-    txns.push({
-      amount,
-      date: r[1] ? String(r[1]) : '',
-      note: r[2] ? String(r[2]) : ''
-    });
+    if (!date) continue;                          // total/summary rows have no date
+    if (/in total/i.test(note)) continue;          // extra safety net
+
+    txns.push({ amount, date, note });
   }
   return txns;
 }
