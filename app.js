@@ -2,8 +2,8 @@
 // No API key needed — the sheet just needs to be shared as
 // "Anyone with the link — Viewer".
 async function fetchSheet(sheetId, tab) {
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tab)}`;
-  const res = await fetch(url);
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tab)}&_=${Date.now()}`;
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('Could not reach this sheet. Check it is shared as "Anyone with the link".');
   const text = await res.text();
 
