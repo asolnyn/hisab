@@ -29,29 +29,52 @@
   <script>
     async function loadStore() {
       const params = new URLSearchParams(location.search);
-      const id = params.get('id');
+      const key = params.get('key');
+      let fileId = params.get('file');
+      let tabName = params.get('tab');
       const contentEl = document.getElementById('content');
       const nameEl = document.getElementById('store-name');
       const stampEl = document.getElementById('stamp-amount');
 
-      let config;
+      // If a share token is present, resolve it to the real file+tab.
+      // This is the only path meant to be shared with other people —
+      // it reveals nothing about any other sheet or tab.
+      if (key) {
+        let links;
+        try {
+          links = await fetchJSON('config/links.json');
+        } catch (e) {
+          contentEl.innerHTML = '<div class="status-msg error">Could not load link data.</div>';
+          return;
+        }
+        const entry = links[key];
+        if (!entry) {
+          contentEl.innerHTML = '<div class="status-msg error">This link is invalid or has expired.</div>';
+          return;
+        }
+        fileId = entry.file;
+        tabName = entry.tab;
+      }
+
+      let sheet;
       try {
-        config = await (await fetch('config.json?_=' + Date.now(), { cache: 'no-store' })).json();
+        sheet = await fetchJSON(`config/${fileId}.json`);
       } catch (e) {
-        contentEl.innerHTML = '<div class="status-msg error">Could not load config.json</div>';
+        contentEl.innerHTML = `<div class="status-msg error">Could not load config/${fileId}.json</div>`;
         return;
       }
 
-      const store = config.stores.find(s => s.id === id);
-      if (!store) {
-        contentEl.innerHTML = '<div class="status-msg error">Store not found in config.json</div>';
+      const tabInfo = sheet.tabs.find(t => t.tab === tabName);
+      if (!tabInfo) {
+        contentEl.innerHTML = '<div class="status-msg error">Tab not found in this sheet\'s config.</div>';
         return;
       }
-      nameEl.textContent = store.name;
-      document.title = store.name + ' · Hisab Khata';
+
+      nameEl.textContent = `${sheet.title} — ${tabInfo.label}`;
+      document.title = sheet.title + ' · Hisab Khata';
 
       try {
-        const rows = await fetchSheet(store.sheetId, store.tab);
+        const rows = await fetchSheet(sheet.sheetId, tabInfo.tab);
         const txns = parseTransactions(rows);
 
         let running = 0;
