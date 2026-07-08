@@ -114,6 +114,50 @@ main{
 .bal.credit{ color: var(--credit); }
 .bal.debit{ color: var(--debit); }
 
+/* sheet card: title + tappable tab rows */
+.sheet-card{
+  background: var(--paper);
+  border:1px solid var(--paper-line);
+  border-radius:2px;
+  padding:1rem 1.1rem 0.4rem;
+  position:relative;
+}
+.sheet-card::before{
+  content:"";
+  position:absolute;
+  left:0; top:0.6rem; bottom:0.6rem;
+  width:3px;
+  background: var(--brass-dim);
+}
+.sheet-card .title{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-size:1.15rem;
+  margin-bottom:0.7rem;
+}
+.tab-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  text-decoration:none;
+  color:inherit;
+  padding:0.65rem 0;
+  border-top:1px solid var(--paper-line);
+  transition: opacity 0.15s ease;
+}
+.tab-row:first-of-type{ border-top:1px solid var(--paper-line); }
+.tab-row:hover, .tab-row:focus-visible{ opacity:0.8; }
+.tab-row .tab-label{
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.85rem;
+  color: var(--ink-dim);
+}
+.tab-row .tab-bal{
+  font-family:'JetBrains Mono', monospace;
+  font-weight:600;
+  font-size:0.95rem;
+}
+
 /* store page: passbook */
 .back-link{
   display:inline-block;
