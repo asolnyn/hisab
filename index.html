@@ -22,38 +22,60 @@
   <script>
     async function loadIndex() {
       const listEl = document.getElementById('list');
-      let config;
+      let sheets, links;
       try {
-        config = await (await fetch('config.json?_=' + Date.now(), { cache: 'no-store' })).json();
+        sheets = await loadAllSheetConfigs();
+        links = await fetchJSON('config/links.json');
       } catch (e) {
-        listEl.innerHTML = '<div class="status-msg error">Could not load config.json</div>';
+        listEl.innerHTML = `<div class="status-msg error">${e.message}</div>`;
         return;
       }
 
-      listEl.innerHTML = '';
-      for (const store of config.stores) {
-        const card = document.createElement('a');
-        card.className = 'store-card';
-        card.href = `store.html?id=${encodeURIComponent(store.id)}`;
-        card.innerHTML = `
-          <div class="name">${store.name}</div>
-          <div class="meta">tab: ${store.tab}</div>
-          <div class="bal" data-id="${store.id}">loading…</div>
-        `;
-        listEl.appendChild(card);
+      // reverse map: "file|||tab" -> token
+      const tokenFor = {};
+      for (const [token, entry] of Object.entries(links)) {
+        tokenFor[entry.file + '|||' + entry.tab] = token;
+      }
 
-        // fetch balance async, fill in when ready
-        fetchSheet(store.sheetId, store.tab)
-          .then(parseTransactions)
-          .then(txns => {
-            const total = txns.reduce((s, t) => s + t.amount, 0);
-            const balEl = card.querySelector('.bal');
-            balEl.textContent = formatMoney(total);
-            balEl.classList.add(total < 0 ? 'debit' : 'credit');
-          })
-          .catch(() => {
-            card.querySelector('.bal').textContent = '—';
-          });
+      listEl.innerHTML = '';
+      for (const sheet of sheets) {
+        const card = document.createElement('div');
+        card.className = 'sheet-card';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'title';
+        titleEl.textContent = sheet.title;
+        card.appendChild(titleEl);
+
+        for (const t of sheet.tabs) {
+          const token = tokenFor[sheet.id + '|||' + t.tab];
+          const href = token
+            ? `store.html?key=${token}`
+            : `store.html?file=${encodeURIComponent(sheet.id)}&tab=${encodeURIComponent(t.tab)}`;
+
+          const row = document.createElement('a');
+          row.className = 'tab-row';
+          row.href = href;
+          row.innerHTML = `
+            <span class="tab-label">tab: ${t.label}</span>
+            <span class="tab-bal" data-tab="${t.tab}">…</span>
+          `;
+          card.appendChild(row);
+
+          fetchSheet(sheet.sheetId, t.tab)
+            .then(parseTransactions)
+            .then(txns => {
+              const total = txns.reduce((s, x) => s + x.amount, 0);
+              const balEl = row.querySelector('.tab-bal');
+              balEl.textContent = formatMoney(total);
+              balEl.classList.add(total < 0 ? 'debit' : 'credit');
+            })
+            .catch(() => {
+              row.querySelector('.tab-bal').textContent = '—';
+            });
+        }
+
+        listEl.appendChild(card);
       }
     }
     loadIndex();
