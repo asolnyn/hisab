@@ -36,7 +36,7 @@
 
       let config;
       try {
-        config = await (await fetch('config.json')).json();
+        config = await (await fetch('config.json?_=' + Date.now(), { cache: 'no-store' })).json();
       } catch (e) {
         contentEl.innerHTML = '<div class="status-msg error">Could not load config.json</div>';
         return;
