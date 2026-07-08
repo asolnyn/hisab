@@ -1,3 +1,22 @@
+// Fetches any JSON file (config files, manifest) with cache-busting,
+// so edits show up immediately without needing ?v=2 tricks.
+async function fetchJSON(path) {
+  const res = await fetch(path + '?_=' + Date.now(), { cache: 'no-store' });
+  if (!res.ok) throw new Error('Could not load ' + path);
+  return res.json();
+}
+
+// Fetches every sheet config file listed in config/manifest.json.
+// (We use a manifest instead of GitHub's folder-listing API because
+// that API needs auth on private repos — a manifest works either way.)
+async function loadAllSheetConfigs() {
+  const manifest = await fetchJSON('config/manifest.json');
+  const configs = await Promise.all(
+    manifest.files.map(f => fetchJSON('config/' + f))
+  );
+  return configs;
+}
+
 // Fetches a Google Sheet's live data via the public gviz JSON feed.
 // No API key needed — the sheet just needs to be shared as
 // "Anyone with the link — Viewer".
